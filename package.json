@@ -1,6 +1,8 @@
 {
-  "name": "architect",
+  "name": "bun-architect",
+  "version": "0.0.2",
   "module": "index.ts",
+  "author": "Tanner Cottle",
   "bin": {
     "architect": "./index.ts"
   },
