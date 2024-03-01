@@ -1,21 +1,16 @@
 #! /usr/bin/env bun
 
-import { file as BunFile, write as BunWrite } from 'bun';
+import { write as BunWrite } from 'bun';
 import path from 'path';
-
-// Function to create directory structure recursively
-async function createDirectoryStructure(basePath: string, dirs: any) {
-    for (const dir of dirs) {
-        const dirPath = path.join(basePath, dir);
-        await BunWrite(dirPath, ''); // In Bun, writing to a directory path creates the directory
-    }
-}
+import log from 'colored-terminal'
+import { mkdir } from "node:fs/promises";
 
 // Function to create files
 async function createFiles(basePath: string, files: string[]) {
     for (const file of files) {
         const filePath = path.join(basePath, file);
-        await BunWrite(filePath, ''); // Writing an empty string to create the file
+        await BunWrite(filePath, ''); 
+        log.info(`${filePath} created.`)
     }
 }
 
@@ -31,7 +26,7 @@ function parseArgs() {
                 structure = JSON.parse(args[i + 1]);
                 i++; // skip the next argument as it's already parsed
             } catch (err) {
-                console.error('Error parsing --structure argument:', err);
+                log.error('Error parsing --structure argument: '+ err);
                 process.exit(1);
             }
         } else {
@@ -51,15 +46,16 @@ async function main() {
         const basename = path.basename(p);
 
         try {
-            await BunWrite(dirname, ''); // In Bun, writing to a directory path creates the directory
+            await mkdir(dirname, { recursive: true })
+            log.info(`${dirname} created.`)
         } catch (err) {
-            console.error('Error creating directory:', err);
+            log.error('Error creating directory: '+ err);
         }
 
         try {
             await createFiles(dirname, [basename]);
         } catch (err) {
-            console.error('Error creating file:', err);
+            log.error('Error creating file: '+ err);
             continue;
         }
     }
@@ -67,14 +63,21 @@ async function main() {
     if (structure) {
         for (const basePath in structure) {
             const dirs = structure[basePath];
-            await createDirectoryStructure(basePath, dirs);
+            await mkdir(basePath, { recursive: true });
+            log.info(`${basePath} created.`)
+    
+            for (const dir of dirs) {
+                const dirPath = path.join(basePath, dir);
+                await mkdir(dirPath, { recursive: true });
+                log.info(`${dirPath} created.`)
+            }
         }
     }
 
-    console.log('Files and directories created successfully!');
+    log.success('Files and directories created successfully!');
 }
 
 main().catch(err => {
-    console.error('An error occurred:', err);
+    log.error('An error occurred: '+ err);
     process.exit(1);
 });

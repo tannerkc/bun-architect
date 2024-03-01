@@ -13,6 +13,7 @@
     "typescript": "^5.0.0"
   },
   "dependencies": {
+    "colored-terminal": "^1.0.1",
     "yargs": "^17.7.2"
   }
 }
